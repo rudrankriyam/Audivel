@@ -140,7 +140,9 @@ struct ContentView: View {
           .padding(.horizontal)
           
           if let audioURL {
-            Link(destination: audioURL) {
+            NavigationLink {
+              AudioPlayerView(audioURL: audioURL)
+            } label: {
               Label("Play Generated Audio", systemImage: "play.circle.fill")
                 .font(.headline)
             }
