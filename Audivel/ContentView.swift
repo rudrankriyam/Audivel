@@ -14,6 +14,10 @@ struct ContentView: View {
   @State private var audioURL: URL?
   @State private var showingFileImporter = false
   @State private var showingURLInput = false
+  @State private var selectedVoice1 = PlayNoteVoice.angelo
+  @State private var selectedVoice2 = PlayNoteVoice.nia
+  @State private var selectedStyle = PlayNoteSynthesisStyle.podcast
+  @State private var selectedPDF: URL?
   
   private let config = Configuration.shared
   
@@ -31,19 +35,10 @@ struct ContentView: View {
         }
         .padding(.top, 32)
         
-        // API Status Section
-        VStack(alignment: .leading, spacing: 12) {
-          HStack {
-            Text("API Status:")
-              .foregroundStyle(.secondary)
-            Image(systemName: !config.playHTAPIKey.isEmpty && !config.playHTUserID.isEmpty ? 
-              "checkmark.circle.fill" : "xmark.circle.fill")
-              .foregroundColor(!config.playHTAPIKey.isEmpty && !config.playHTUserID.isEmpty ? 
-                .green : .red)
-          }
-          .font(.footnote)
+        // Selected PDF Display
+        if let selectedPDF {
+          PDFPreview(url: selectedPDF)
         }
-        .padding(.horizontal)
         
         // Import Options
         VStack(spacing: 16) {
@@ -64,27 +59,88 @@ struct ContentView: View {
           }
         }
         .padding(.horizontal)
-        .padding(.top, 8)
         
-        // Generation Status and Audio Link
-        if isGenerating {
-          VStack(spacing: 8) {
-            ProgressView()
-            Text("Generating audio...")
+        // Conversion Settings
+        VStack(alignment: .leading, spacing: 20) {
+          Text("Conversion Settings")
+            .font(.headline)
+          
+          // Voice Selection
+          VStack(alignment: .leading, spacing: 12) {
+            Text("Primary Voice")
+              .font(.subheadline)
               .foregroundStyle(.secondary)
+            
+            Picker("Primary Voice", selection: $selectedVoice1) {
+              ForEach([
+                PlayNoteVoice.angelo, .arsenio, .cillian, .timo,
+                .dexter, .miles, .briggs, .deedee, .nia, .inara,
+                .constanza, .gideon, .casper, .mitch, .ava
+              ], id: \.id) { voice in
+                VoiceOption(voice: voice)
+                  .tag(voice)
+              }
+            }
+            .pickerStyle(.menu)
+            
+            Text("Secondary Voice")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+            
+            Picker("Secondary Voice", selection: $selectedVoice2) {
+              ForEach([
+                PlayNoteVoice.nia, .angelo, .arsenio, .cillian,
+                .timo, .dexter, .miles, .briggs, .deedee, .inara,
+                .constanza, .gideon, .casper, .mitch, .ava
+              ], id: \.id) { voice in
+                VoiceOption(voice: voice)
+                  .tag(voice)
+              }
+            }
+            .pickerStyle(.menu)
           }
-          .padding(.top)
+          
+          // Synthesis Style
+          VStack(alignment: .leading, spacing: 12) {
+            Text("Synthesis Style")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+            
+            Picker("Style", selection: $selectedStyle) {
+              Text("Podcast").tag(PlayNoteSynthesisStyle.podcast)
+              Text("Executive Briefing").tag(PlayNoteSynthesisStyle.executiveBriefing)
+              Text("Children's Story").tag(PlayNoteSynthesisStyle.childrensStory)
+              Text("Debate").tag(PlayNoteSynthesisStyle.debate)
+            }
+            .pickerStyle(.segmented)
+          }
         }
+        .padding()
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal)
+        
+        // Generate Button
+        Button(action: generatePlayNote) {
+          if isGenerating {
+            ProgressView()
+              .controlSize(.large)
+          } else {
+            Text("Generate Audio")
+              .font(.headline)
+              .frame(maxWidth: .infinity)
+          }
+        }
+        .buttonStyle(.borderedProminent)
+        .disabled(sourceURL.isEmpty || isGenerating)
+        .padding(.horizontal)
         
         if let audioURL {
           Link(destination: audioURL) {
-            HStack {
-              Image(systemName: "play.circle.fill")
-              Text("Play Generated Audio")
-            }
-            .font(.headline)
+            Label("Play Generated Audio", systemImage: "play.circle.fill")
+              .font(.headline)
           }
-          .buttonStyle(.borderedProminent)
+          .buttonStyle(.bordered)
         }
       }
     }
@@ -99,10 +155,10 @@ struct ContentView: View {
     ) { result in
       switch result {
       case .success(let url):
+        self.selectedPDF = url
         self.sourceURL = url.absoluteString
-        generatePlayNote()
       case .failure(let error):
-        debugPrint("Error importing file: \(error)")
+        print("Error importing file: \(error.localizedDescription)")
       }
     }
   }
@@ -115,29 +171,69 @@ struct ContentView: View {
       do {
         let playAI = PlayAI(apiKey: config.playHTAPIKey, userId: config.playHTUserID)
         
-        guard let sourceURL = URL(string: sourceURL) else {
-          return
-        }
+        guard let sourceURL = URL(string: sourceURL) else { return }
         
         let request = PlayNoteRequest(
           sourceFileUrl: sourceURL,
-          synthesisStyle: .podcast,
-          voice1: .angelo,
-          voice2: .nia
+          synthesisStyle: selectedStyle,
+          voice1: selectedVoice1,
+          voice2: selectedVoice2
         )
         
-        let response = try await playAI.createAndAwaitPlayNote(request, statusHandler: { status in
-          debugPrint("Status: \(status)")
-        })
+        let response = try await playAI.createAndAwaitPlayNote(request) { status in
+          print("Status: \(status)")
+        }
         
         if let audioURL = response.audioUrl {
           self.audioURL = URL(string: audioURL)
-          debugPrint("Audio URL: \(audioURL)")
         }
       } catch {
-        debugPrint("Error: \(error)")
+        print("Error: \(error.localizedDescription)")
       }
     }
+  }
+}
+
+// Supporting Views
+struct VoiceOption: View {
+  let voice: PlayNoteVoice
+  
+  var body: some View {
+    HStack {
+      Text(voice.name)
+      Text("(\(voice.accent))")
+        .foregroundStyle(.secondary)
+    }
+  }
+}
+
+struct PDFPreview: View {
+  let url: URL
+  
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text("Selected PDF")
+        .font(.headline)
+      
+      HStack {
+        Image(systemName: "doc.fill")
+          .font(.title2)
+          .foregroundStyle(.blue)
+        
+        VStack(alignment: .leading) {
+          Text(url.lastPathComponent)
+            .lineLimit(1)
+          
+          Text(url.pathExtension.uppercased())
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+      }
+      .padding()
+      .background(Color(.systemGray6))
+      .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    .padding(.horizontal)
   }
 }
 
