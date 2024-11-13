@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0A1AA8DC2CE518530017050F /* SakuraKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1AA8DB2CE518530017050F /* SakuraKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		0A1AA8BE2CE516400017050F /* Audivel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Audivel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A1AA8DC2CE518530017050F /* SakuraKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = Audivel;
 			packageProductDependencies = (
+				0A1AA8DB2CE518530017050F /* SakuraKit */,
 			);
 			productName = Audivel;
 			productReference = 0A1AA8BE2CE516400017050F /* Audivel.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 0A1AA8B52CE516400017050F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0A1AA8DA2CE518530017050F /* XCRemoteSwiftPackageReference "SakuraKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0A1AA8BF2CE516400017050F /* Products */;
 			projectDirPath = "";
@@ -339,6 +348,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0A1AA8DA2CE518530017050F /* XCRemoteSwiftPackageReference "SakuraKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rryam/SakuraKit.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0A1AA8DB2CE518530017050F /* SakuraKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A1AA8DA2CE518530017050F /* XCRemoteSwiftPackageReference "SakuraKit" */;
+			productName = SakuraKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0A1AA8B62CE516400017050F /* Project object */;
 }

@@ -1,0 +1,15 @@
+{
+  "originHash" : "6eb058b421a3c3c9cdb7e8ecc022045fa192c3af4b934ab7ac25e30c8e3ce437",
+  "pins" : [
+    {
+      "identity" : "sakurakit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/rryam/SakuraKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "fdfb23b11ac0c6af2cb7bb0a9dabc4eb8b168c9f"
+      }
+    }
+  ],
+  "version" : 3
+}
