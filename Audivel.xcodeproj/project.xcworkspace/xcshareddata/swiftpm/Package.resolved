@@ -1,6 +1,15 @@
 {
-  "originHash" : "6eb058b421a3c3c9cdb7e8ecc022045fa192c3af4b934ab7ac25e30c8e3ce437",
+  "originHash" : "02a18cec28e70a7e610a556664d10fa18ee51223218cf9c6712153a6d3c839ca",
   "pins" : [
+    {
+      "identity" : "orb",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/metasidd/Orb.git",
+      "state" : {
+        "revision" : "8c5dda85e55638893f37657b56558968c3e11409",
+        "version" : "0.2.0"
+      }
+    },
     {
       "identity" : "sakurakit",
       "kind" : "remoteSourceControl",
