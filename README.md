@@ -73,6 +73,7 @@ open Audivel.xcodeproj
 ## Dependencies
 
 - [SakuraKit](https://github.com/rryam/SakuraKit.git) - Swift SDK for Prototyping AI Speech Generation
+- [Orb](https://github.com/metasidd/Orb) - A mesmerizing orb, fully designed in SwiftUI. The project would not have been so pretty without it. 🙏
 
 ## License
 
