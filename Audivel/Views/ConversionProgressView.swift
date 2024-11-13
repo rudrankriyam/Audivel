@@ -13,7 +13,7 @@ struct ConversionProgressView: View {
     VStack(spacing: 32) {
       ZStack {
         Circle()
-          .stroke(Color(.systemGray5), lineWidth: 8)
+          .stroke(Color(.secondaryLabelColor), lineWidth: 8)
           .frame(width: 120, height: 120)
 
         Circle()
@@ -69,7 +69,7 @@ struct ConversionProgressView: View {
 
 #Preview {
   ZStack {
-    Color(.systemGray6)
+    Color(.secondarySystemFill)
       .ignoresSafeArea()
     
     ConversionProgressView(

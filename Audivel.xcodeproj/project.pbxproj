@@ -364,10 +364,10 @@
 		};
 		0A1AA8E42CE533270017050F /* XCRemoteSwiftPackageReference "Orb" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/metasidd/Orb.git";
+			repositoryURL = "https://github.com/itssali/Orb.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.2.0;
+				branch = "macOS-Support";
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

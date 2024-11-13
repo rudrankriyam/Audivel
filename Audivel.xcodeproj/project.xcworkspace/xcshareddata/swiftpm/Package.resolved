@@ -1,13 +1,13 @@
 {
-  "originHash" : "02a18cec28e70a7e610a556664d10fa18ee51223218cf9c6712153a6d3c839ca",
+  "originHash" : "8bf0c3eb89fb1af90168d12d5f97e7042a5402c26d2b00697d99f8dd6a9df62a",
   "pins" : [
     {
       "identity" : "orb",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/metasidd/Orb.git",
+      "location" : "https://github.com/itssali/Orb.git",
       "state" : {
-        "revision" : "8c5dda85e55638893f37657b56558968c3e11409",
-        "version" : "0.2.0"
+        "branch" : "macOS-Support",
+        "revision" : "913f13a3351b05291fb0388de3f528c8215dadac"
       }
     },
     {

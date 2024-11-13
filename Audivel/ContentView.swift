@@ -109,7 +109,7 @@ struct ContentView: View {
             }
           }
           .padding()
-          .background(Color(.systemBackground))
+          .background(Color.secondary)
           .clipShape(RoundedRectangle(cornerRadius: 12))
           .padding(.horizontal)
 
@@ -143,7 +143,7 @@ struct ContentView: View {
       .navigationTitle("Audivel")
 
       if isGenerating {
-        Color(.systemBackground)
+        Color.secondary
           .opacity(0.8)
           .ignoresSafeArea()
 
@@ -295,7 +295,7 @@ struct PDFPreview: View {
         }
       }
       .padding()
-      .background(Color(.systemGray6))
+      .background(Color.secondary)
       .clipShape(RoundedRectangle(cornerRadius: 8))
     }
     .padding(.horizontal)
@@ -345,13 +345,17 @@ struct URLInputSheet: View {
         Section {
           TextField("PDF URL", text: $sourceURL)
             .autocorrectionDisabled()
+          #if os(iOS) || os(visionOS)
             .textInputAutocapitalization(.never)
+          #endif
         } footer: {
           Text("Enter the URL of the PDF file you want to convert to audio.")
         }
       }
       .navigationTitle("Import PDF URL")
+      #if !os(macOS)
       .navigationBarTitleDisplayMode(.inline)
+      #endif
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") {
