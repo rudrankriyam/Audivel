@@ -11,13 +11,14 @@ import SakuraKit
 struct ContentView: View {
   @State private var sourceURL = ""
   @State private var isGenerating = false
+  @State private var audioURL: URL?
   
   private let config = Configuration.shared
   
   var body: some View {
     ScrollView {
       VStack(spacing: 20) {
-        Text("SakuraKit Demo")
+        Text("PlayNote Generator")
           .font(.largeTitle)
           .padding()
         
@@ -39,38 +40,55 @@ struct ContentView: View {
         }
         .padding(.horizontal)
         
-        Button(action: generateAudio) {
+        Button(action: generatePlayNote) {
           if isGenerating {
             ProgressView()
           } else {
-            Text("Generate Audio")
+            Text("Generate PlayNote")
               .bold()
           }
         }
         .buttonStyle(.borderedProminent)
         .disabled(config.playHTAPIKey.isEmpty || config.playHTUserID.isEmpty || sourceURL.isEmpty || isGenerating)
+        
+        if let audioURL {
+          Link("Open Audio", destination: audioURL)
+            .font(.headline)
+            .foregroundColor(.blue)
+        }
       }
     }
   }
   
-  private func generateAudio() {
+  private func generatePlayNote() {
     Task {
       isGenerating = true
       defer { isGenerating = false }
       
       do {
         let playAI = PlayAI(apiKey: config.playHTAPIKey, userId: config.playHTUserID)
+        
+        guard let sourceURL = URL(string: sourceURL) else {
+          return
+        }
+        
         let request = PlayNoteRequest(
-          sourceFileUrl: URL(string: sourceURL)!,
+          sourceFileUrl: sourceURL,
           synthesisStyle: .podcast,
           voice1: .angelo,
           voice2: .nia
         )
         
-        let response = try await playAI.createPlayNote(request)
-        // Handle response here
+        let response = try await playAI.createAndAwaitPlayNote(request, statusHandler: { status in
+          debugPrint("Status: \(status)")
+        })
+        
+        if let audioURL = response.audioUrl {
+          self.audioURL = URL(string: audioURL)
+          debugPrint("Audio URL: \(audioURL)")
+        }
       } catch {
-        print("Error: \(error)")
+        debugPrint("Error: \(error)")
       }
     }
   }
