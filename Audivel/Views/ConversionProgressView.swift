@@ -11,14 +11,11 @@ struct ConversionProgressView: View {
 
   var body: some View {
     VStack(spacing: 32) {
-      // Progress Animation
       ZStack {
-        // Background circle
         Circle()
           .stroke(Color(.systemGray5), lineWidth: 8)
           .frame(width: 120, height: 120)
 
-        // Progress circle
         Circle()
           .trim(from: 0, to: progress)
           .stroke(Color.accentColor, style: StrokeStyle(
@@ -28,7 +25,6 @@ struct ConversionProgressView: View {
           .frame(width: 120, height: 120)
           .rotationEffect(.degrees(-90))
 
-        // Center icon
         Image(systemName: "waveform")
           .font(.system(size: 40))
           .foregroundStyle(.secondary)
@@ -40,7 +36,6 @@ struct ConversionProgressView: View {
           }
       }
 
-      // Status Text
       VStack(spacing: 16) {
         Text(status)
           .font(.headline)
@@ -56,7 +51,6 @@ struct ConversionProgressView: View {
         }
       }
 
-      // Cancel Button
       Button(role: .destructive, action: onCancel) {
         Text("Cancel Conversion")
           .font(.subheadline.bold())

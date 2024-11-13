@@ -2,13 +2,28 @@ import SwiftUI
 import AVKit
 import Orb
 
+/// A view that provides audio playback functionality using AVPlayer
 struct AudioPlayerView: View {
+  /// The URL of the audio file to play
   let audioURL: URL
-  @State private var audioPlayer: AVAudioPlayer?
+  
+  /// The AVPlayer instance used for audio playback
+  @State private var audioPlayer = AVPlayer()
+  
+  /// Whether audio is currently playing
   @State private var isPlaying = false
+  
+  /// Current playback position in seconds
   @State private var currentTime: TimeInterval = 0
+  
+  /// Total duration of the audio in seconds
   @State private var duration: TimeInterval = 0
+  
+  /// Current playback speed multiplier
   @State private var playbackRate: Float = 1.0
+  
+  /// Whether the audio is currently loading
+  @State private var isLoading = false
 
   private let orbConfig = OrbConfiguration(
     backgroundColors: [.purple, .pink, .blue],
@@ -22,14 +37,16 @@ struct AudioPlayerView: View {
       Spacer()
 
       ZStack {
-        if isPlaying {
+        if isLoading {
+          ProgressView("Loading audio...")
+        } else if isPlaying {
           OrbView(configuration: orbConfig)
             .frame(width: 250, height: 250)
             .transition(.scale.combined(with: .opacity))
         } else {
-          Image(systemName: "waveform")
+          Image(systemName: isPlaying ? "waveform.circle.fill" : "waveform")
             .font(.system(size: 60))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(isPlaying ? .blue : .secondary)
             .transition(.scale.combined(with: .opacity))
         }
       }
@@ -65,6 +82,7 @@ struct AudioPlayerView: View {
           Image(systemName: "gobackward.15")
             .font(.title)
         }
+        .disabled(duration == 0)
 
         Button {
           isPlaying ? pause() : play()
@@ -74,6 +92,7 @@ struct AudioPlayerView: View {
             .symbolRenderingMode(.hierarchical)
             .foregroundStyle(.blue)
         }
+        .disabled(duration == 0)
 
         Button {
           seek(to: min(duration, currentTime + 15))
@@ -81,6 +100,7 @@ struct AudioPlayerView: View {
           Image(systemName: "goforward.15")
             .font(.title)
         }
+        .disabled(duration == 0)
       }
       .padding()
 
@@ -105,44 +125,49 @@ struct AudioPlayerView: View {
       startTimeObserver()
     }
     .onDisappear {
-      audioPlayer?.stop()
+      audioPlayer.pause()
     }
   }
 
   private func setupAudioPlayer() {
-    do {
-      audioPlayer = try AVAudioPlayer(contentsOf: audioURL)
-      audioPlayer?.prepareToPlay()
-      duration = audioPlayer?.duration ?? 0
-    } catch {
-      print("Error setting up audio player: \(error.localizedDescription)")
+    audioPlayer = AVPlayer(url: audioURL)
+    
+    let asset = AVAsset(url: audioURL)
+
+    Task {
+      let durationTime = try? await asset.load(.duration)
+      await MainActor.run {
+        duration = CMTimeGetSeconds(durationTime ?? .zero)
+      }
     }
   }
 
   private func play() {
-    audioPlayer?.play()
+    audioPlayer.play()
     isPlaying = true
   }
 
   private func pause() {
-    audioPlayer?.pause()
+    audioPlayer.pause()
     isPlaying = false
   }
 
   private func seek(to time: TimeInterval) {
-    audioPlayer?.currentTime = time
+    let cmTime = CMTime(seconds: time, preferredTimescale: 1)
+    audioPlayer.seek(to: cmTime)
     currentTime = time
   }
 
   private func setPlaybackRate(_ rate: Float) {
-    audioPlayer?.rate = rate
+    audioPlayer.rate = rate
     playbackRate = rate
   }
 
   private func startTimeObserver() {
-    Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-      currentTime = audioPlayer?.currentTime ?? 0
-      if audioPlayer?.isPlaying == false && currentTime >= duration {
+    let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    audioPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { time in
+      currentTime = CMTimeGetSeconds(time)
+      if audioPlayer.timeControlStatus == .paused && currentTime >= duration {
         isPlaying = false
       }
     }
@@ -163,10 +188,10 @@ struct AudioPlayerView: View {
         await MainActor.run {
           // Show success message
           // You might want to add a toast or alert here
-          print("Audio saved successfully")
+          debugPrint("Audio saved successfully")
         }
       } catch {
-        print("Error saving audio: \(error.localizedDescription)")
+        debugPrint("Error saving audio: \(error.localizedDescription)")
       }
     }
   }
