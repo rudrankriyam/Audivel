@@ -89,9 +89,8 @@ struct AudioPlayerView: View {
         } label: {
           Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
             .font(.system(size: 85))
-            .symbolRenderingMode(.hierarchical)
-            .foregroundStyle(.blue)
         }
+        .buttonStyle(.plain)
         .disabled(duration == 0)
 
         Button {

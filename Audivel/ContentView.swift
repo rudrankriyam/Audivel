@@ -331,8 +331,6 @@ struct ImportButton: View {
         .foregroundStyle(.secondary)
     }
     .padding()
-    .background(.secondary.opacity(0.1))
-    .clipShape(RoundedRectangle(cornerRadius: 12))
   }
 }
 
