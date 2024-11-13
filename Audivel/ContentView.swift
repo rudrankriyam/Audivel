@@ -18,132 +18,155 @@ struct ContentView: View {
   @State private var selectedVoice2 = PlayNoteVoice.nia
   @State private var selectedStyle = PlayNoteSynthesisStyle.podcast
   @State private var selectedPDF: URL?
+  @State private var conversionProgress = 0.0
+  @State private var estimatedTime: TimeInterval?
+  @State private var conversionStatus = ""
   
   private let config = Configuration.shared
   
   var body: some View {
-    ScrollView {
-      VStack(spacing: 24) {
-        // Title and Instructions
-        VStack(spacing: 8) {
-          Text("Audio from PDF")
-            .font(.system(size: 34, weight: .bold))
-          
-          Text("Convert your PDF files into audio with one tap!")
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-        }
-        .padding(.top, 32)
-        
-        // Selected PDF Display
-        if let selectedPDF {
-          PDFPreview(url: selectedPDF)
-        }
-        
-        // Import Options
-        VStack(spacing: 16) {
-          Button(action: { showingFileImporter = true }) {
-            ImportButton(
-              systemName: "doc.fill",
-              title: "Choose PDF",
-              subtitle: "Select from Files"
-            )
-          }
-          
-          Button(action: { showingURLInput = true }) {
-            ImportButton(
-              systemName: "link",
-              title: "Import URL",
-              subtitle: "Paste PDF link"
-            )
-          }
-        }
-        .padding(.horizontal)
-        
-        // Conversion Settings
-        VStack(alignment: .leading, spacing: 20) {
-          Text("Conversion Settings")
-            .font(.headline)
-          
-          // Voice Selection
-          VStack(alignment: .leading, spacing: 12) {
-            Text("Primary Voice")
+    ZStack {
+      ScrollView {
+        VStack(spacing: 24) {
+          // Title and Instructions
+          VStack(spacing: 8) {
+            Text("Audio from PDF")
+              .font(.system(size: 34, weight: .bold))
+            
+            Text("Convert your PDF files into audio with one tap!")
               .font(.subheadline)
               .foregroundStyle(.secondary)
-            
-            Picker("Primary Voice", selection: $selectedVoice1) {
-              ForEach([
-                PlayNoteVoice.angelo, .arsenio, .cillian, .timo,
-                .dexter, .miles, .briggs, .deedee, .nia, .inara,
-                .constanza, .gideon, .casper, .mitch, .ava
-              ], id: \.id) { voice in
-                VoiceOption(voice: voice)
-                  .tag(voice)
-              }
-            }
-            .pickerStyle(.menu)
-            
-            Text("Secondary Voice")
-              .font(.subheadline)
-              .foregroundStyle(.secondary)
-            
-            Picker("Secondary Voice", selection: $selectedVoice2) {
-              ForEach([
-                PlayNoteVoice.nia, .angelo, .arsenio, .cillian,
-                .timo, .dexter, .miles, .briggs, .deedee, .inara,
-                .constanza, .gideon, .casper, .mitch, .ava
-              ], id: \.id) { voice in
-                VoiceOption(voice: voice)
-                  .tag(voice)
-              }
-            }
-            .pickerStyle(.menu)
+          }
+          .padding(.top, 32)
+          
+          // Selected PDF Display
+          if let selectedPDF {
+            PDFPreview(url: selectedPDF)
           }
           
-          // Synthesis Style
-          VStack(alignment: .leading, spacing: 12) {
-            Text("Synthesis Style")
-              .font(.subheadline)
-              .foregroundStyle(.secondary)
-            
-            Picker("Style", selection: $selectedStyle) {
-              Text("Podcast").tag(PlayNoteSynthesisStyle.podcast)
-              Text("Executive Briefing").tag(PlayNoteSynthesisStyle.executiveBriefing)
-              Text("Children's Story").tag(PlayNoteSynthesisStyle.childrensStory)
-              Text("Debate").tag(PlayNoteSynthesisStyle.debate)
+          // Import Options
+          VStack(spacing: 16) {
+            Button(action: { showingFileImporter = true }) {
+              ImportButton(
+                systemName: "doc.fill",
+                title: "Choose PDF",
+                subtitle: "Select from Files"
+              )
             }
-            .pickerStyle(.segmented)
+            
+            Button(action: { showingURLInput = true }) {
+              ImportButton(
+                systemName: "link",
+                title: "Import URL",
+                subtitle: "Paste PDF link"
+              )
+            }
           }
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.horizontal)
-        
-        // Generate Button
-        Button(action: generatePlayNote) {
-          if isGenerating {
-            ProgressView()
-              .controlSize(.large)
-          } else {
-            Text("Generate Audio")
+          .padding(.horizontal)
+          
+          // Conversion Settings
+          VStack(alignment: .leading, spacing: 20) {
+            Text("Conversion Settings")
               .font(.headline)
-              .frame(maxWidth: .infinity)
+            
+            // Voice Selection
+            VStack(alignment: .leading, spacing: 12) {
+              Text("Primary Voice")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+              
+              Picker("Primary Voice", selection: $selectedVoice1) {
+                ForEach([
+                  PlayNoteVoice.angelo, .arsenio, .cillian, .timo,
+                  .dexter, .miles, .briggs, .deedee, .nia, .inara,
+                  .constanza, .gideon, .casper, .mitch, .ava
+                ], id: \.id) { voice in
+                  VoiceOption(voice: voice)
+                    .tag(voice)
+                }
+              }
+              .pickerStyle(.menu)
+              
+              Text("Secondary Voice")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+              
+              Picker("Secondary Voice", selection: $selectedVoice2) {
+                ForEach([
+                  PlayNoteVoice.nia, .angelo, .arsenio, .cillian,
+                  .timo, .dexter, .miles, .briggs, .deedee, .inara,
+                  .constanza, .gideon, .casper, .mitch, .ava
+                ], id: \.id) { voice in
+                  VoiceOption(voice: voice)
+                    .tag(voice)
+                }
+              }
+              .pickerStyle(.menu)
+            }
+            
+            // Synthesis Style
+            VStack(alignment: .leading, spacing: 12) {
+              Text("Synthesis Style")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+              
+              Picker("Style", selection: $selectedStyle) {
+                Text("Podcast").tag(PlayNoteSynthesisStyle.podcast)
+                Text("Executive Briefing").tag(PlayNoteSynthesisStyle.executiveBriefing)
+                Text("Children's Story").tag(PlayNoteSynthesisStyle.childrensStory)
+                Text("Debate").tag(PlayNoteSynthesisStyle.debate)
+              }
+              .pickerStyle(.segmented)
+            }
           }
-        }
-        .buttonStyle(.borderedProminent)
-        .disabled(sourceURL.isEmpty || isGenerating)
-        .padding(.horizontal)
-        
-        if let audioURL {
-          Link(destination: audioURL) {
-            Label("Play Generated Audio", systemImage: "play.circle.fill")
-              .font(.headline)
+          .padding()
+          .background(Color(.systemBackground))
+          .clipShape(RoundedRectangle(cornerRadius: 12))
+          .padding(.horizontal)
+          
+          // Generate Button
+          Button(action: generatePlayNote) {
+            if isGenerating {
+              ProgressView()
+                .controlSize(.large)
+            } else {
+              Text("Generate Audio")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+            }
           }
-          .buttonStyle(.bordered)
+          .buttonStyle(.borderedProminent)
+          .disabled(sourceURL.isEmpty || isGenerating)
+          .padding(.horizontal)
+          
+          if let audioURL {
+            Link(destination: audioURL) {
+              Label("Play Generated Audio", systemImage: "play.circle.fill")
+                .font(.headline)
+            }
+            .buttonStyle(.bordered)
+          }
         }
       }
+      .blur(radius: isGenerating ? 3 : 0)
+      
+      // Overlay Progress View when generating
+      if isGenerating {
+        Color(.systemBackground)
+          .opacity(0.8)
+          .ignoresSafeArea()
+        
+        ConversionProgressView(
+          status: conversionStatus.isEmpty ? "Converting PDF to audio...\nThis may take a few minutes" : conversionStatus,
+          progress: conversionProgress,
+          estimatedTime: estimatedTime
+        ) {
+          cancelGeneration()
+        }
+        .transition(.scale.combined(with: .opacity))
+      }
     }
+    .animation(.spring(duration: 0.3), value: isGenerating)
     .sheet(isPresented: $showingURLInput) {
       URLInputSheet(sourceURL: $sourceURL, isPresented: $showingURLInput) {
         generatePlayNote()
@@ -166,7 +189,8 @@ struct ContentView: View {
   private func generatePlayNote() {
     Task {
       isGenerating = true
-      defer { isGenerating = false }
+      conversionProgress = 0
+      conversionStatus = "Initializing conversion..."
       
       do {
         let playAI = PlayAI(apiKey: config.playHTAPIKey, userId: config.playHTUserID)
@@ -181,15 +205,61 @@ struct ContentView: View {
         )
         
         let response = try await playAI.createAndAwaitPlayNote(request) { status in
-          print("Status: \(status)")
+          // Update progress based on status
+          Task { @MainActor in
+            updateProgress(for: status)
+          }
         }
         
         if let audioURL = response.audioUrl {
           self.audioURL = URL(string: audioURL)
+          conversionStatus = "Conversion complete!"
+          // Show completion state briefly before dismissing
+          try? await Task.sleep(for: .seconds(1))
         }
       } catch {
-        print("Error: \(error.localizedDescription)")
+        conversionStatus = "Error: \(error.localizedDescription)"
+        try? await Task.sleep(for: .seconds(2))
       }
+      
+      isGenerating = false
+    }
+  }
+  
+  private func updateProgress(for status: String) {
+    switch status.lowercased() {
+    case let s where s.contains("processing"):
+      conversionProgress = 0.3
+      conversionStatus = "Processing PDF content..."
+      estimatedTime = 240 // 4 minutes
+      
+    case let s where s.contains("generating"):
+      conversionProgress = 0.6
+      conversionStatus = "Generating audio..."
+      estimatedTime = 180 // 3 minutes
+      
+    case let s where s.contains("finalizing"):
+      conversionProgress = 0.9
+      conversionStatus = "Finalizing audio..."
+      estimatedTime = 60 // 1 minute
+      
+    case let s where s.contains("complete"):
+      conversionProgress = 1.0
+      conversionStatus = "Conversion complete!"
+      estimatedTime = nil
+      
+    default:
+      break
+    }
+  }
+  
+  private func cancelGeneration() {
+    // Implement cancellation logic here
+    Task {
+      // Add API call to cancel conversion if supported
+      isGenerating = false
+      conversionStatus = "Conversion cancelled"
+      try? await Task.sleep(for: .seconds(1))
     }
   }
 }
