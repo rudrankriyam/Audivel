@@ -10,18 +10,12 @@ struct AudioPlayerView: View {
   @State private var duration: TimeInterval = 0
   @State private var playbackRate: Float = 1.0
 
-  // Orb configuration for audio visualization
   private let orbConfig = OrbConfiguration(
-    backgroundColors: [.blue, .purple, .indigo],
+    backgroundColors: [.purple, .pink, .blue],
     glowColor: .white,
-    coreGlowIntensity: 1.2,
-    showBackground: true,
-    showWavyBlobs: true,
-    showParticles: true,
-    showGlowEffects: true,
-    showShadow: true,
-    speed: 60
-  )
+    coreGlowIntensity: 1.5,
+    speed: 45
+)
 
   var body: some View {
     VStack {
@@ -30,7 +24,7 @@ struct AudioPlayerView: View {
       ZStack {
         if isPlaying {
           OrbView(configuration: orbConfig)
-            .frame(width: 200, height: 200)
+            .frame(width: 250, height: 250)
             .transition(.scale.combined(with: .opacity))
         } else {
           Image(systemName: "waveform")
@@ -69,24 +63,23 @@ struct AudioPlayerView: View {
           seek(to: max(0, currentTime - 15))
         } label: {
           Image(systemName: "gobackward.15")
-            .font(.title2)
+            .font(.title)
         }
 
         Button {
           isPlaying ? pause() : play()
         } label: {
           Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-            .font(.system(size: 65))
+            .font(.system(size: 85))
             .symbolRenderingMode(.hierarchical)
             .foregroundStyle(.blue)
         }
 
-        // Forward 15s
         Button {
           seek(to: min(duration, currentTime + 15))
         } label: {
           Image(systemName: "goforward.15")
-            .font(.title2)
+            .font(.title)
         }
       }
       .padding()
