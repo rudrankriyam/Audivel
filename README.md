@@ -1,5 +1,4 @@
 # Audivel
-[![Star History Chart](https://api.star-history.com/svg?repos=rudrankriyam/Audivel&type=Date)](https://star-history.com/#rudrankriyam/Audivel&Date)
 
 
 Audivel is a macOS, iOS, and visionOS app that generates audio content from PDF using Play.ai's PlayNote API. It provides a simple interface to convert PDF into natural-sounding podcast, narrative, children's story, or debate with various voice options.
@@ -88,3 +87,5 @@ Rudrank Riyam [@rudrankriyam](https://x.com/rudrankriyam)
 ## Note
 
 Make sure to keep your API credentials secure and never commit the `.env` file to version control. The `.gitignore` file is already configured to exclude it.
+
+[![Star History Chart](https://api.star-history.com/svg?repos=rudrankriyam/Audivel&type=Date)](https://star-history.com/#rudrankriyam/Audivel&Date)
